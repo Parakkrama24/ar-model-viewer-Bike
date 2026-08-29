@@ -6,6 +6,7 @@ import {
   Environment,
 } from '@react-three/drei'
 import { XR, createXRStore } from '@react-three/xr'
+import ARHitTest from './components/ARHitTest.jsx';
 
 const xrStore = createXRStore({
   offerSession:'immersive-ar'
