@@ -5,6 +5,7 @@ import { Model } from './components/THREE/Model.jsx';
 import {
   Environment,
 } from '@react-three/drei'
+import { XR, createXRStore } from '@react-three/xr'
 
 
 function App() {
@@ -23,15 +24,19 @@ function App() {
       <section className="relative h-[calc(100vh-4rem)]">
 
         <Canvas camera={{ position: [0, 0, 5] }}>
-          <ambientLight intensity={20} />
-          <Model />
-          <Environment preset="studio" />
-          <OrbitControls
-            enablePan={false}
-            minDistance={2}
-            maxDistance={10}
-          />
-          <Ground />
+
+          <XR store={xrStore}>
+
+            <ambientLight intensity={2} />
+            <Model />
+            <Environment preset="studio" />
+            <OrbitControls
+              enablePan={false}
+              minDistance={2}
+              maxDistance={10}
+            />
+            <Ground />
+          </XR>
         </Canvas>
 
         {/* Bottom controls */}
@@ -44,7 +49,8 @@ function App() {
           </button>
 
           <button
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium transition hover:bg-blue-500"
+            onClick={() => xrStore.enterAR()}
+            className="rounded-xl bg-blue-600 px-5 py-3 font-medium text-white shadow-lg transition hover:bg-blue-500"
           >
             View in AR
           </button>
