@@ -3,11 +3,11 @@ import { Canvas } from '@react-three/fiber'
 import {
   XR,
   createXRStore,
+  useXRInputSourceEvent,
 } from '@react-three/xr'
 
 import ARHitTest from './components/ARHitTest'
 import PlacedModel from './components/PlacedModel'
-import { useXRInputSourceEvent } from '@react-three/xr'
 
 const xrStore = createXRStore({
   offerSession: 'immersive-ar',
@@ -15,6 +15,7 @@ const xrStore = createXRStore({
 
 function ARPlacement({ hitMatrix, onPlace }) {
   useXRInputSourceEvent(
+    'all',
     'select',
     () => {
       if (!hitMatrix) {
@@ -22,7 +23,8 @@ function ARPlacement({ hitMatrix, onPlace }) {
       }
 
       onPlace(hitMatrix.clone())
-    }
+    },
+    [hitMatrix, onPlace]
   )
 
   return null
@@ -36,12 +38,12 @@ function App() {
     setHitMatrix(matrix.clone())
   }
 
-  const handlePlace = () => {
-    if (!hitMatrix) {
+  const handlePlace = (matrix) => {
+    if (!matrix) {
       return
     }
 
-    setPlacedMatrix(hitMatrix.clone())
+    setPlacedMatrix(matrix.clone())
   }
 
   return (
@@ -53,35 +55,30 @@ function App() {
 
           <ambientLight intensity={1} />
 
-          <ARHitTest onHit={handleHit} />
+          <ARHitTest
+            onHit={handleHit}
+          />
 
           <ARPlacement
             hitMatrix={hitMatrix}
             onPlace={handlePlace}
           />
 
-
-          <PlacedModel matrix={placedMatrix} />
+          <PlacedModel
+            matrix={placedMatrix}
+          />
 
         </XR>
 
       </Canvas>
 
-      <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
 
         <button
           onClick={() => xrStore.enterAR()}
-          className="rounded-xl bg-blue-600 px-6 py-3 font-medium text-white shadow-lg"
+          className="rounded-xl bg-blue-600 px-6 py-3 font-medium text-white shadow-lg transition hover:bg-blue-500"
         >
           View in AR
-        </button>
-
-        <button
-          onClick={handlePlace}
-          disabled={!hitMatrix}
-          className="rounded-xl bg-white px-6 py-3 font-medium text-black shadow-lg disabled:opacity-40"
-        >
-          Place
         </button>
 
       </div>
