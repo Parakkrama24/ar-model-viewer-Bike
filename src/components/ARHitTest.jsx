@@ -1,27 +1,34 @@
 import { useXRHitTest } from '@react-three/xr'
 import { useRef } from 'react'
-import { Matrix4, Vector3 } from 'three'
+import { Matrix4 } from 'three'
 
-export default function ARHitTest() {
+export default function ARHitTest({ onHit }) {
   const reticleRef = useRef()
-
   const matrix = useRef(new Matrix4())
-  const position = useRef(new Vector3())
 
   useXRHitTest(
     (results, getWorldMatrix) => {
       if (results.length === 0) {
-        reticleRef.current.visible = false
+        if (reticleRef.current) {
+          reticleRef.current.visible = false
+        }
+
         return
       }
 
       getWorldMatrix(matrix.current, results[0])
 
-      position.current.setFromMatrixPosition(matrix.current)
+      if (reticleRef.current) {
+        matrix.current.decompose(
+          reticleRef.current.position,
+          reticleRef.current.quaternion,
+          reticleRef.current.scale
+        )
 
-      reticleRef.current.position.copy(position.current)
+        reticleRef.current.visible = true
+      }
 
-      reticleRef.current.visible = true
+      onHit?.(matrix.current)
     },
     'viewer',
     'plane'
@@ -30,11 +37,12 @@ export default function ARHitTest() {
   return (
     <mesh
       ref={reticleRef}
-      rotation={[-Math.PI / 2, 0, 0]}
       visible={false}
+      scale={[1, 1, 1]}
     >
       <ringGeometry args={[0.08, 0.12, 32]} />
-      <meshBasicMaterial color="white" />
+
+      <meshBasicMaterial />
     </mesh>
   )
 }
