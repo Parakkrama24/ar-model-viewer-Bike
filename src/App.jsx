@@ -7,10 +7,26 @@ import {
 
 import ARHitTest from './components/ARHitTest'
 import PlacedModel from './components/PlacedModel'
+import { useXRInputSourceEvent } from '@react-three/xr'
 
 const xrStore = createXRStore({
   offerSession: 'immersive-ar',
 })
+
+function ARPlacement({ hitMatrix, onPlace }) {
+  useXRInputSourceEvent(
+    'select',
+    () => {
+      if (!hitMatrix) {
+        return
+      }
+
+      onPlace(hitMatrix.clone())
+    }
+  )
+
+  return null
+}
 
 function App() {
   const [hitMatrix, setHitMatrix] = useState(null)
@@ -38,6 +54,12 @@ function App() {
           <ambientLight intensity={1} />
 
           <ARHitTest onHit={handleHit} />
+
+          <ARPlacement
+            hitMatrix={hitMatrix}
+            onPlace={handlePlace}
+          />
+
 
           <PlacedModel matrix={placedMatrix} />
 

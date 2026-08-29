@@ -28,7 +28,7 @@ export default function ARHitTest({ onHit }) {
         reticleRef.current.visible = true
       }
 
-      onHit?.(matrix.current)
+      onHit?.(matrix.current.clone())
     },
     'viewer',
     'plane'
@@ -38,10 +38,9 @@ export default function ARHitTest({ onHit }) {
     <mesh
       ref={reticleRef}
       visible={false}
-      scale={[1, 1, 1]}
+      rotation={[-Math.PI / 2, 0, 0]}
     >
       <ringGeometry args={[0.08, 0.12, 32]} />
-
       <meshBasicMaterial />
     </mesh>
   )
