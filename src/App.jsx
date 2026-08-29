@@ -7,6 +7,7 @@ import {
 } from '@react-three/drei'
 import { XR, createXRStore } from '@react-three/xr'
 
+const xrStore = createXRStore()
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
 
           <XR store={xrStore}>
 
-            <ambientLight intensity={2} />
+            {/* <ambientLight intensity={2} />
             <Model />
             <Environment preset="studio" />
             <OrbitControls
@@ -35,7 +36,7 @@ function App() {
               minDistance={2}
               maxDistance={10}
             />
-            <Ground />
+            <Ground /> */}
           </XR>
         </Canvas>
 
