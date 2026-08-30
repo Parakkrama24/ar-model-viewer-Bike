@@ -19,7 +19,7 @@ export default function PlacedModel({ matrix }) {
     )
 
     // Temporary scale
-    ref.current.scale.setScalar(0.1)
+    ref.current.scale.setScalar(1)
   }, [matrix])
 
   if (!matrix) {
