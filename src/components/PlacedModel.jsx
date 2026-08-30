@@ -5,9 +5,8 @@ export default function PlacedModel({ matrix }) {
   const ref = useRef()
 
   const { scene } = useGLTF(
-    '/models/model01/Model_01_steady.gltf'
+    '/models/model_101/BikeModel_01_steady.gltf'
   )
-
   useEffect(() => {
     if (!matrix || !ref.current) {
       return
