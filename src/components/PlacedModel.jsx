@@ -1,7 +1,12 @@
 import { useEffect, useRef } from 'react'
+import { useGLTF } from '@react-three/drei'
 
 export default function PlacedModel({ matrix }) {
   const ref = useRef()
+
+  const { scene } = useGLTF(
+    '/models/model01/Model_01_steady.gltf'
+  )
 
   useEffect(() => {
     if (!matrix || !ref.current) {
@@ -13,6 +18,9 @@ export default function PlacedModel({ matrix }) {
       ref.current.quaternion,
       ref.current.scale
     )
+
+    // Temporary scale
+    ref.current.scale.setScalar(0.1)
   }, [matrix])
 
   if (!matrix) {
@@ -20,9 +28,9 @@ export default function PlacedModel({ matrix }) {
   }
 
   return (
-    <mesh ref={ref}>
-      <boxGeometry args={[0.2, 0.2, 0.2]} />
-      <meshStandardMaterial />
-    </mesh>
+    <primitive
+      ref={ref}
+      object={scene}
+    />
   )
 }
