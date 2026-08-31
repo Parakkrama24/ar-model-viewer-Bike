@@ -2,31 +2,49 @@ import { useEffect, useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
+const MODEL_ROTATION = [0, Math.PI / 2, 0]
+
 export default function PlacedModel({ matrix }) {
   const groupRef = useRef()
+  const modelRef = useRef()
 
   const { scene } = useGLTF(
     '/models/model_101/BikeModel_01_steady.gltf'
   )
 
-  // Calculate model offset once.
-  const offset = useRef(null)
-
+  /*
+   * Normalize the model after applying
+   * its local rotation.
+   */
   useEffect(() => {
-    const box = new THREE.Box3().setFromObject(scene)
+    if (!modelRef.current) {
+      return
+    }
 
-    const center = new THREE.Vector3()
+    const model = modelRef.current
 
-    box.getCenter(center)
+    // Make sure Three.js has updated all transforms.
+    model.updateMatrixWorld(true)
 
-    offset.current = new THREE.Vector3(
-      -center.x,
-      -box.min.y,
-      -center.z
-    )
+    const box = new THREE.Box3().setFromObject(model)
+
+    /*
+     * Move the model vertically so that
+     * its lowest point is exactly Y = 0.
+     */
+    model.position.y -= box.min.y
+
+    model.updateMatrixWorld(true)
+
+    console.log('Ground offset:', -box.min.y)
   }, [scene])
 
-  // Apply AR placement ONLY when matrix changes.
+  /*
+   * Apply the AR placement transform.
+   *
+   * This only changes when the user places
+   * the model.
+   */
   useEffect(() => {
     if (!matrix || !groupRef.current) {
       return
@@ -38,22 +56,25 @@ export default function PlacedModel({ matrix }) {
       groupRef.current.scale
     )
 
-    // Preserve the model's original scale.
+    // Keep original model scale.
     groupRef.current.scale.setScalar(1)
   }, [matrix])
 
-  if (!matrix || !offset.current) {
+  if (!matrix) {
     return null
   }
 
   return (
     <group ref={groupRef}>
 
-      <primitive
-        object={scene}
-        position={offset.current}
-         rotation={[0, Math.PI / 2, 0]}
-      />
+      <group
+        ref={modelRef}
+        rotation={MODEL_ROTATION}
+      >
+        <primitive
+          object={scene}
+        />
+      </group>
 
     </group>
   )
