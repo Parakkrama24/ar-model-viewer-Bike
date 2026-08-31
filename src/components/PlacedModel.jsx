@@ -52,6 +52,7 @@ export default function PlacedModel({ matrix }) {
       <primitive
         object={scene}
         position={offset.current}
+         rotation={[0, Math.PI / 2, 0]}
       />
 
     </group>
