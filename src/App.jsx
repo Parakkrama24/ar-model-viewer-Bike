@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import {
   XR,
   createXRStore,
   useXRInputSourceEvent,
 } from '@react-three/xr'
+import { Matrix4 } from 'three'
 
 import ARHitTest from './components/ARHitTest'
 import PlacedModel from './components/PlacedModel'
@@ -13,37 +14,40 @@ const xrStore = createXRStore({
   offerSession: 'immersive-ar',
 })
 
-function ARPlacement({ hitMatrix, onPlace }) {
+function ARPlacement({ hitMatrixRef, onPlace }) {
   useXRInputSourceEvent(
     'all',
     'select',
     () => {
-      if (!hitMatrix) {
+      if (!hitMatrixRef.current) {
         return
       }
 
-      onPlace(hitMatrix.clone())
+      // Freeze the current hit-test transform.
+      const placementMatrix = hitMatrixRef.current.clone()
+
+      onPlace(placementMatrix)
     },
-    [hitMatrix, onPlace]
+    [onPlace]
   )
 
   return null
 }
 
 function App() {
-  const [hitMatrix, setHitMatrix] = useState(null)
+  // Current surface detected by AR.
+  // This changes every frame WITHOUT causing React renders.
+  const hitMatrixRef = useRef(null)
+
+  // This changes only when the user places the model.
   const [placedMatrix, setPlacedMatrix] = useState(null)
 
   const handleHit = (matrix) => {
-    setHitMatrix(matrix.clone())
+    hitMatrixRef.current = matrix
   }
 
   const handlePlace = (matrix) => {
-    if (!matrix) {
-      return
-    }
-
-    setPlacedMatrix(matrix.clone())
+    setPlacedMatrix(matrix)
   }
 
   return (
@@ -60,7 +64,7 @@ function App() {
           />
 
           <ARPlacement
-            hitMatrix={hitMatrix}
+            hitMatrixRef={hitMatrixRef}
             onPlace={handlePlace}
           />
 
@@ -72,7 +76,7 @@ function App() {
 
       </Canvas>
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
 
         <button
           onClick={() => xrStore.enterAR()}

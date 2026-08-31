@@ -16,7 +16,10 @@ export default function ARHitTest({ onHit }) {
         return
       }
 
-      getWorldMatrix(matrix.current, results[0])
+      getWorldMatrix(
+        matrix.current,
+        results[0]
+      )
 
       if (reticleRef.current) {
         matrix.current.decompose(
@@ -28,7 +31,8 @@ export default function ARHitTest({ onHit }) {
         reticleRef.current.visible = true
       }
 
-      onHit?.(matrix.current.clone())
+      // Send the current matrix to a ref.
+      onHit(matrix.current)
     },
     'viewer',
     'plane'
@@ -38,9 +42,9 @@ export default function ARHitTest({ onHit }) {
     <mesh
       ref={reticleRef}
       visible={false}
-      rotation={[-Math.PI / 2, 0, 0]}
     >
       <ringGeometry args={[0.08, 0.12, 32]} />
+
       <meshBasicMaterial />
     </mesh>
   )
