@@ -14,6 +14,10 @@ export default function ARHitTest({
   const reticleRef = useRef()
   const matrixRef  = useRef(new Matrix4())
 
+  // ✅ Correct API (confirmed from installed .d.ts):
+  //    useXRHitTest(callback, relativeTo, trackableType)
+  //    arg 2 = 'viewer'  → originates from camera/viewer
+  //    arg 3 = ['plane'] → only detect floors, tables, etc.
   useXRHitTest(
     (results, getWorldMatrix) => {
 
@@ -34,10 +38,10 @@ export default function ARHitTest({
       getWorldMatrix(matrixRef.current, results[0])
 
       if (reticleRef.current) {
-        // ✅ Extract ONLY position from the hit matrix.
-        //    We intentionally discard quaternion so the static
-        //    rotation={[-Math.PI/2,0,0]} on the mesh is preserved,
-        //    keeping the ring flat on the floor.
+        // Only copy position from hit matrix.
+        // Quaternion is intentionally discarded so the static
+        // rotation={[-Math.PI/2, 0, 0]} on the mesh is preserved,
+        // keeping the ring flat on the floor at all times.
         matrixRef.current.decompose(_pos, _quat, _scale)
         reticleRef.current.position.copy(_pos)
         reticleRef.current.visible = true
@@ -45,7 +49,8 @@ export default function ARHitTest({
 
       onHit(matrixRef.current)
     },
-    { space: 'viewer', entityTypes: ['plane'] }
+    'viewer',    // relativeTo  (2nd positional arg)
+    ['plane']    // trackableType (3rd positional arg)
   )
 
   return (
@@ -56,11 +61,8 @@ export default function ARHitTest({
     >
       <ringGeometry args={[0.08, 0.12, 32]} />
 
-      {/*
-        ✅ color="white" so it shows against any surface.
-        ✅ side={2} = DoubleSide so it's visible from any angle.
-      */}
+      {/* white + DoubleSide → visible against any surface from any angle */}
       <meshBasicMaterial color="white" side={2} />
     </mesh>
   )
-}
+}
