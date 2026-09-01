@@ -10,9 +10,7 @@ import SceneLighting from './SceneLighting'
 import ARHitTest from './ARHitTest'
 import PlacedModel from './PlacedModel'
 
-const xrStore = createXRStore({
-  offerSession: 'immersive-ar',
-})
+const xrStore = createXRStore()
 
 function ARPlacement({
   hitMatrixRef,
@@ -61,7 +59,7 @@ export default function ARScene() {
   return (
     <div className="relative h-full w-full">
 
-      <Canvas>
+      <Canvas xr={xrStore}>
         <XR store={xrStore}>
 
           {/* AR lighting */}
@@ -97,7 +95,7 @@ export default function ARScene() {
           <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white text-gray-900 shadow-2xl">
 
             <img
-              src="/models/model_101/image.png"
+              src="/models/model_101/Image.png"
               alt="Bike"
               className="h-52 w-full object-cover"
             />

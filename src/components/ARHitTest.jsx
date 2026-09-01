@@ -45,8 +45,7 @@ export default function ARHitTest({
 
       onHit(matrixRef.current)
     },
-    'viewer',
-    'plane'
+    { space: 'viewer', entityTypes: ['plane'] }
   )
 
   return (

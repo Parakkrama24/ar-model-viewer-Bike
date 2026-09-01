@@ -9,9 +9,12 @@ function App() {
   const [isAR, setIsAR] = useState(false)
 
   const handleEnterAR = async () => {
-    setIsAR(true)
-
-    await xrStore.enterAR()
+    try {
+      await xrStore.enterAR()
+      setIsAR(true)
+    } catch (e) {
+      console.error('AR failed to start:', e)
+    }
   }
 
   return (
