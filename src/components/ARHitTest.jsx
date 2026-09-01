@@ -2,12 +2,24 @@ import { useXRHitTest } from '@react-three/xr'
 import { useRef } from 'react'
 import { Matrix4 } from 'three'
 
-export default function ARHitTest({ onHit }) {
+export default function ARHitTest({
+  onHit,
+  placed,
+}) {
   const reticleRef = useRef()
   const matrixRef = useRef(new Matrix4())
 
   useXRHitTest(
     (results, getWorldMatrix) => {
+
+      if (placed) {
+        if (reticleRef.current) {
+          reticleRef.current.visible = false
+        }
+
+        return
+      }
+
       if (results.length === 0) {
         if (reticleRef.current) {
           reticleRef.current.visible = false

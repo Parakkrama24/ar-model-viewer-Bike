@@ -16,12 +16,17 @@ const xrStore = createXRStore({
 
 function ARPlacement({
   hitMatrixRef,
+  placed,
   onPlace,
 }) {
   useXRInputSourceEvent(
     'all',
     'select',
     () => {
+      if (placed) {
+        return
+      }
+
       if (!hitMatrixRef.current) {
         return
       }
@@ -30,13 +35,16 @@ function ARPlacement({
         hitMatrixRef.current.clone()
       )
     },
-    [onPlace]
+    [placed, onPlace]
   )
 
   return null
 }
 
 export default function ARScene() {
+
+
+  const [showInfo, setShowInfo] = useState(false)
   const hitMatrixRef = useRef(null)
 
   const [placedMatrix, setPlacedMatrix] =
@@ -51,28 +59,93 @@ export default function ARScene() {
   }
 
   return (
-    <Canvas>
+    <div className="relative h-full w-full">
 
-      <XR store={xrStore}>
+      <Canvas>
+        <XR store={xrStore}>
 
-        <SceneLighting />
+          {/* AR lighting */}
+          <SceneLighting />
 
-        <ARHitTest
-          onHit={handleHit}
-        />
+          {/* Hit testing */}
+          <ARHitTest
+            onHit={handleHit}
+            placed={placedMatrix !== null}
+          />
 
-        <ARPlacement
-          hitMatrixRef={hitMatrixRef}
-          onPlace={handlePlace}
-        />
+          {/* First tap = placement */}
+          <ARPlacement
+            hitMatrixRef={hitMatrixRef}
+            placed={placedMatrix !== null}
+            onPlace={handlePlace}
+          />
 
-        <PlacedModel
-          matrix={placedMatrix}
-        />
+          {/* Second tap = model information */}
+          <PlacedModel
+            matrix={placedMatrix}
+            onModelClick={() => setShowInfo(true)}
+          />
 
-      </XR>
+        </XR>
+      </Canvas>
 
-    </Canvas>
+
+      {/* 👇 PUT THE POPUP HERE */}
+      {showInfo && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 p-5">
+
+          <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white text-gray-900 shadow-2xl">
+
+            <img
+              src="/models/model_101/image.png"
+              alt="Bike"
+              className="h-52 w-full object-cover"
+            />
+
+            <div className="p-5">
+
+              <h2 className="text-2xl font-bold">
+                Bike Model 01
+              </h2>
+
+              <p className="mt-2 text-sm text-gray-600">
+                Premium motorcycle model
+              </p>
+
+              <div className="mt-4 space-y-2 text-sm">
+
+                <div className="flex justify-between">
+                  <span>Length</span>
+                  <span>2.29 m</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>Height</span>
+                  <span>1.29 m</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>Width</span>
+                  <span>0.87 m</span>
+                </div>
+
+              </div>
+
+              <button
+                onClick={() => setShowInfo(false)}
+                className="mt-5 w-full rounded-xl bg-gray-900 py-3 font-semibold text-white"
+              >
+                Continue AR
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+    </div>
   )
 }
 

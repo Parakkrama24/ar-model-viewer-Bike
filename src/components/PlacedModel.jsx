@@ -7,7 +7,10 @@ const MODEL_PATH =
 
 const MODEL_ROTATION = [0, Math.PI / 2, 0]
 
-export default function PlacedModel({ matrix }) {
+export default function PlacedModel({
+  matrix,
+  onModelClick,
+}) {
   const groupRef = useRef()
   const modelRef = useRef()
 
@@ -67,6 +70,10 @@ export default function PlacedModel({ matrix }) {
 
         <primitive
           object={scene}
+          onClick={(event) => {
+            event.stopPropagation()
+            onModelClick?.()
+          }}
         />
 
       </group>
