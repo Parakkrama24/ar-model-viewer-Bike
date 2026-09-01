@@ -76,17 +76,18 @@ export default function ARScene() {
             onPlace={handlePlace}
           />
 
-          {/* Bike model — tap it to show info card */}
+          {/* Bike model — tap it to toggle the info card */}
           <PlacedModel
             matrix={placedMatrix}
-            onModelClick={() => setShowInfo(true)}
+            onModelClick={() => setShowInfo((open) => !open)}
           />
 
           {/*
-            ✅ 3-D floating info card — rendered in AR world space
-            using @react-three/drei Html, anchored 1.4 m above the bike.
-            It is inside the Canvas so it lives in the XR scene, NOT
-            as a flat DOM overlay on the home screen.
+            Floating info card — built from real scene geometry
+            (a canvas texture on a plane), anchored above the bike.
+            It must NOT use drei's <Html>: DOM nodes are never
+            composited into an immersive-ar session, so that version
+            only ever appeared on the non-AR home screen.
           */}
           <ARInfoCard
             placedMatrix={placedMatrix}

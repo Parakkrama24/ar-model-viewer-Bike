@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -17,11 +17,18 @@ export default function PlacedModel({
   const { scene } = useGLTF(MODEL_PATH)
 
   /*
+   * Box that wraps the bike, expressed in the placement group's
+   * own space. Used as the tap target — the bike's own geometry is
+   * too thin to reliably hit with a finger tap in AR.
+   */
+  const [hitBox, setHitBox] = useState(null)
+
+  /*
    * Ground the model after applying
    * its local rotation.
    */
   useEffect(() => {
-    if (!modelRef.current) {
+    if (!modelRef.current || !groupRef.current) {
       return
     }
 
@@ -35,6 +42,23 @@ export default function PlacedModel({
     model.position.y -= box.min.y
 
     model.updateMatrixWorld(true)
+
+    /* Re-measure once grounded, relative to the placement group. */
+    const grounded = new THREE.Box3()
+      .setFromObject(model)
+      .applyMatrix4(
+        new THREE.Matrix4()
+          .copy(groupRef.current.matrixWorld)
+          .invert()
+      )
+
+    const size = grounded.getSize(new THREE.Vector3())
+    const center = grounded.getCenter(new THREE.Vector3())
+
+    setHitBox({
+      size: [size.x, size.y, size.z],
+      center: [center.x, center.y, center.z],
+    })
 
   }, [scene])
 
@@ -77,6 +101,28 @@ export default function PlacedModel({
         />
 
       </group>
+
+      {/*
+        Invisible-but-raycastable collider. It must stay `visible`,
+        because three's raycaster skips hidden objects — so it is
+        made see-through with opacity 0 instead.
+      */}
+      {hitBox && (
+        <mesh
+          position={hitBox.center}
+          onClick={(event) => {
+            event.stopPropagation()
+            onModelClick?.()
+          }}
+        >
+          <boxGeometry args={hitBox.size} />
+          <meshBasicMaterial
+            transparent
+            opacity={0}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
 
     </group>
   )
