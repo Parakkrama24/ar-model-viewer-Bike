@@ -10,7 +10,9 @@ import SceneLighting from './SceneLighting'
 import ARHitTest from './ARHitTest'
 import PlacedModel from './PlacedModel'
 
-const xrStore = createXRStore()
+const xrStore = createXRStore({
+  planeDetection: true,   // ✅ required for hit-test on planes to return results
+})
 
 function ARPlacement({
   hitMatrixRef,
