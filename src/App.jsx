@@ -1,91 +1,54 @@
-import { useRef, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
-import {
-  XR,
-  createXRStore,
-  useXRInputSourceEvent,
-} from '@react-three/xr'
-import { Matrix4 } from 'three'
+import { useState } from 'react'
 
-import ARHitTest from './components/ARHitTest'
-import PlacedModel from './components/PlacedModel'
-
-const xrStore = createXRStore({
-  offerSession: 'immersive-ar',
-})
-
-function ARPlacement({ hitMatrixRef, onPlace }) {
-  useXRInputSourceEvent(
-    'all',
-    'select',
-    () => {
-      if (!hitMatrixRef.current) {
-        return
-      }
-
-      // Freeze the current hit-test transform.
-      const placementMatrix = hitMatrixRef.current.clone()
-
-      onPlace(placementMatrix)
-    },
-    [onPlace]
-  )
-
-  return null
-}
+import ModelViewer from './components/ModelViewer'
+import ARScene, {
+  xrStore,
+} from './components/ARScene'
 
 function App() {
-  // Current surface detected by AR.
-  // This changes every frame WITHOUT causing React renders.
-  const hitMatrixRef = useRef(null)
+  const [isAR, setIsAR] = useState(false)
 
-  // This changes only when the user places the model.
-  const [placedMatrix, setPlacedMatrix] = useState(null)
+  const handleEnterAR = async () => {
+    setIsAR(true)
 
-  const handleHit = (matrix) => {
-    hitMatrixRef.current = matrix
-  }
-
-  const handlePlace = (matrix) => {
-    setPlacedMatrix(matrix)
+    await xrStore.enterAR()
   }
 
   return (
-    <main className="relative h-screen w-screen bg-gray-950">
+    <main className="relative h-screen w-screen bg-gray-950 text-white">
 
-      <Canvas>
+      {!isAR && (
+        <>
+          <header className="absolute left-0 right-0 top-0 z-10 flex h-16 items-center justify-between border-b border-white/10 bg-black/30 px-6 backdrop-blur-md">
 
-        <XR store={xrStore}>
+            <h1 className="text-lg font-semibold">
+              AR Model Viewer
+            </h1>
 
-          <ambientLight intensity={1} />
+          </header>
 
-          <ARHitTest
-            onHit={handleHit}
-          />
+          <section className="h-full w-full">
+            <ModelViewer />
+          </section>
 
-          <ARPlacement
-            hitMatrixRef={hitMatrixRef}
-            onPlace={handlePlace}
-          />
+          <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2">
 
-          <PlacedModel
-            matrix={placedMatrix}
-          />
+            <button
+              onClick={handleEnterAR}
+              className="rounded-xl bg-blue-600 px-8 py-3 font-semibold text-white shadow-xl transition hover:bg-blue-500"
+            >
+              View in AR
+            </button>
 
-        </XR>
+          </div>
+        </>
+      )}
 
-      </Canvas>
-
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
-
-        <button
-          onClick={() => xrStore.enterAR()}
-          className="rounded-xl bg-blue-600 px-6 py-3 font-medium text-white shadow-lg transition hover:bg-blue-500"
-        >
-          View in AR
-        </button>
-
-      </div>
+      {isAR && (
+        <div className="fixed inset-0">
+          <ARScene />
+        </div>
+      )}
 
     </main>
   )

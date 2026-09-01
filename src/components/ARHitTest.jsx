@@ -4,7 +4,7 @@ import { Matrix4 } from 'three'
 
 export default function ARHitTest({ onHit }) {
   const reticleRef = useRef()
-  const matrix = useRef(new Matrix4())
+  const matrixRef = useRef(new Matrix4())
 
   useXRHitTest(
     (results, getWorldMatrix) => {
@@ -17,12 +17,12 @@ export default function ARHitTest({ onHit }) {
       }
 
       getWorldMatrix(
-        matrix.current,
+        matrixRef.current,
         results[0]
       )
 
       if (reticleRef.current) {
-        matrix.current.decompose(
+        matrixRef.current.decompose(
           reticleRef.current.position,
           reticleRef.current.quaternion,
           reticleRef.current.scale
@@ -31,8 +31,7 @@ export default function ARHitTest({ onHit }) {
         reticleRef.current.visible = true
       }
 
-      // Send the current matrix to a ref.
-      onHit(matrix.current)
+      onHit(matrixRef.current)
     },
     'viewer',
     'plane'
@@ -43,7 +42,9 @@ export default function ARHitTest({ onHit }) {
       ref={reticleRef}
       visible={false}
     >
-      <ringGeometry args={[0.08, 0.12, 32]} />
+      <ringGeometry
+        args={[0.08, 0.12, 32]}
+      />
 
       <meshBasicMaterial />
     </mesh>
