@@ -8,10 +8,11 @@ import {
 
 import SceneLighting from './SceneLighting'
 import ARHitTest from './ARHitTest'
-import PlacedModel from './PlacedModel'
+import InteractiveBikeModel from './InteractiveBikeModel'
 import ARInfoCard from './ARInfoCard'
 import ARUIButton from './ARUIButton'
 import ARNavigationButtons from './ARNavigationButtons'
+import PartDetailsPopup from './PartDetailsPopup'
 import { BIKE_MODELS, DEFAULT_MODEL_INDEX } from '../config/models'
 
 const xrStore = createXRStore()
@@ -49,6 +50,7 @@ export default function ARScene() {
   const hitMatrixRef                  = useRef(null)
   const [placedMatrix, setPlacedMatrix] = useState(null)
   const [currentModelIndex, setCurrentModelIndex] = useState(DEFAULT_MODEL_INDEX)
+  const [selectedPart, setSelectedPart] = useState(null)
 
   const handleHit = (matrix) => {
     hitMatrixRef.current = matrix
@@ -87,6 +89,13 @@ export default function ARScene() {
     }
   }
 
+  const handlePartClick = (partInfo) => {
+    console.log('Part clicked in ARScene:', partInfo)
+    setSelectedPart(partInfo)
+    // Close the main info card if it's open
+    setShowInfo(false)
+  }
+
   const currentModel = BIKE_MODELS[currentModelIndex]
 
   return (
@@ -111,11 +120,12 @@ export default function ARScene() {
             onPlace={handlePlace}
           />
 
-          {/* Bike model — tap it to toggle the info card */}
-          <PlacedModel
+          {/* Interactive Bike model — tap parts for details, tap elsewhere for info card */}
+          <InteractiveBikeModel
             matrix={placedMatrix}
             modelPath={currentModel.path}
             onModelClick={() => setShowInfo((open) => !open)}
+            onPartClick={handlePartClick}
           />
 
           {/*
@@ -151,6 +161,12 @@ export default function ARScene() {
 
         </XR>
       </Canvas>
+
+      {/* 2D Part Details Popup - rendered outside Canvas, works in AR */}
+      <PartDetailsPopup
+        partInfo={selectedPart}
+        onClose={() => setSelectedPart(null)}
+      />
 
     </div>
   )
