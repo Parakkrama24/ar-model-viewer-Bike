@@ -16,19 +16,6 @@ const CARD_H = 900          // texture px
 const WORLD_W = 0.44        // metres
 const WORLD_H = WORLD_W * (CARD_H / CARD_W)
 
-const CARD_IMAGE = '/models/model_101/Image.png'
-
-const TITLE    = 'Bike Model 01'
-const SUBTITLE = 'PREMIUM MOTORCYCLE'
-
-const SPECS = [
-  { label: 'Engine', value: '750 cc' },
-  { label: 'Length', value: '2.29 m' },
-  { label: 'Height', value: '1.29 m' },
-  { label: 'Width',  value: '0.87 m' },
-  { label: 'Weight', value: '178 kg' },
-]
-
 const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
 
 /* ------------------------------------------------------------------ */
@@ -51,7 +38,16 @@ function roundRect(ctx, x, y, w, h, r) {
  * Draw the whole card. `photo` may be null while the
  * hero image is still loading — everything else still renders.
  */
-function paintCard(ctx, photo) {
+function paintCard(ctx, photo, modelData) {
+  const TITLE = modelData?.name || 'Bike Model'
+  const SUBTITLE = 'PREMIUM MOTORCYCLE'
+  const SPECS = modelData?.specs ? [
+    { label: 'Engine', value: modelData.specs.engine },
+    { label: 'Length', value: modelData.specs.length },
+    { label: 'Height', value: modelData.specs.height },
+    { label: 'Width', value: modelData.specs.width },
+    { label: 'Weight', value: modelData.specs.weight },
+  ] : []
   const W = CARD_W
   const H = CARD_H
   const PAD = 40
@@ -168,17 +164,19 @@ function paintCard(ctx, photo) {
 
 /* ------------------------------------------------------------------ */
 
-export default function ARInfoCard({ placedMatrix, visible, onClose }) {
+export default function ARInfoCard({ placedMatrix, visible, onClose, modelData }) {
   const groupRef = useRef()
   const [photo, setPhoto] = useState(null)
 
   /* Load the hero photo. `photo` flips null → image exactly once. */
   useEffect(() => {
+    if (!modelData?.image) return
+
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => setPhoto(img)
-    img.src = CARD_IMAGE
-  }, [])
+    img.src = modelData.image
+  }, [modelData?.image])
 
   /*
    * Canvas-backed texture. Rebuilt (rather than mutated) when the
@@ -189,13 +187,13 @@ export default function ARInfoCard({ placedMatrix, visible, onClose }) {
     canvas.width = CARD_W
     canvas.height = CARD_H
 
-    paintCard(canvas.getContext('2d'), photo)
+    paintCard(canvas.getContext('2d'), photo, modelData)
 
     const tex = new THREE.CanvasTexture(canvas)
     tex.colorSpace = THREE.SRGBColorSpace
     tex.anisotropy = 8
     return tex
-  }, [photo])
+  }, [photo, modelData])
 
   useEffect(() => {
     return () => texture.dispose()

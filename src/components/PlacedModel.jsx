@@ -2,19 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
-const MODEL_PATH =
-  '/models/model_101/BikeModel_01_steady.gltf'
-
 const MODEL_ROTATION = [0, Math.PI / 2, 0]
 
 export default function PlacedModel({
   matrix,
+  modelPath,
   onModelClick,
 }) {
   const groupRef = useRef()
   const modelRef = useRef()
 
-  const { scene } = useGLTF(MODEL_PATH)
+  const { scene } = useGLTF(modelPath)
 
   /*
    * Box that wraps the bike, expressed in the placement group's
@@ -60,7 +58,7 @@ export default function PlacedModel({
       center: [center.x, center.y, center.z],
     })
 
-  }, [scene])
+  }, [scene, modelPath])
 
   /*
    * Apply the frozen AR placement.
@@ -127,5 +125,3 @@ export default function PlacedModel({
     </group>
   )
 }
-
-useGLTF.preload(MODEL_PATH)
