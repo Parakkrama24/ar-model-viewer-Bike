@@ -211,7 +211,8 @@ export default function ARInfoCard({ placedMatrix, visible, onClose, modelData }
 
     placedMatrix.decompose(pos, quat, scl)
 
-    return [pos.x, pos.y + 1.45, pos.z]
+    // Raised higher to avoid covering the bike - from 1.45 to 2.0 meters
+    return [pos.x, pos.y + 2.0, pos.z]
   }, [placedMatrix])
 
   /*
@@ -246,8 +247,8 @@ export default function ARInfoCard({ placedMatrix, visible, onClose, modelData }
     <group ref={groupRef} position={position} scale={0.85}>
 
       {/* Stem linking the card back down to the bike. */}
-      <mesh position={[0, -WORLD_H / 2 - 0.09, 0]}>
-        <cylinderGeometry args={[0.004, 0.004, 0.18, 8]} />
+      <mesh position={[0, -WORLD_H / 2 - 0.35, 0]}>
+        <cylinderGeometry args={[0.004, 0.004, 0.7, 8]} />
         <meshBasicMaterial
           color="#3b82f6"
           transparent
