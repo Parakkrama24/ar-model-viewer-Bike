@@ -11,6 +11,7 @@ import ARHitTest from './ARHitTest'
 import PlacedModel from './PlacedModel'
 import ARInfoCard from './ARInfoCard'
 import ARUIButton from './ARUIButton'
+import ARNavigationButtons from './ARNavigationButtons'
 import { BIKE_MODELS, DEFAULT_MODEL_INDEX } from '../config/models'
 
 const xrStore = createXRStore()
@@ -133,7 +134,7 @@ export default function ARScene() {
 
           {/* 3D UI Buttons - visible in AR immersive mode */}
 
-          {/* Close button - top right of view */}
+          {/* Close button - fixed in camera space, top right */}
           <ARUIButton
             type="close"
             position={[0.85, 0.95, -2]}
@@ -141,26 +142,12 @@ export default function ARScene() {
             scale={0.22}
           />
 
-          {/* Model navigation buttons - visible after placement */}
-          {placedMatrix && (
-            <>
-              {/* Left arrow */}
-              <ARUIButton
-                type="left"
-                position={[-0.85, 0, -2]}
-                onClick={handlePrevModel}
-                scale={0.25}
-              />
-
-              {/* Right arrow */}
-              <ARUIButton
-                type="right"
-                position={[0.85, 0, -2]}
-                onClick={handleNextModel}
-                scale={0.25}
-              />
-            </>
-          )}
+          {/* Model navigation buttons - anchored to model in world space */}
+          <ARNavigationButtons
+            placedMatrix={placedMatrix}
+            onPrevious={handlePrevModel}
+            onNext={handleNextModel}
+          />
 
         </XR>
       </Canvas>
