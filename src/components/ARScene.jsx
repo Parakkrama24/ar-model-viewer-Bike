@@ -10,6 +10,7 @@ import SceneLighting from './SceneLighting'
 import ARHitTest from './ARHitTest'
 import PlacedModel from './PlacedModel'
 import ARInfoCard from './ARInfoCard'
+import ARUIButton from './ARUIButton'
 import { BIKE_MODELS, DEFAULT_MODEL_INDEX } from '../config/models'
 
 const xrStore = createXRStore()
@@ -113,66 +114,39 @@ export default function ARScene() {
             modelData={currentModel}
           />
 
+          {/* 3D UI Buttons - visible in AR immersive mode */}
+
+          {/* Back button - top left of view */}
+          <ARUIButton
+            type="back"
+            position={[-0.8, 0.9, -2]}
+            onClick={handleExitAR}
+            scale={0.18}
+          />
+
+          {/* Model navigation buttons - visible after placement */}
+          {placedMatrix && (
+            <>
+              {/* Left arrow */}
+              <ARUIButton
+                type="left"
+                position={[-0.9, 0, -2]}
+                onClick={handlePrevModel}
+                scale={0.15}
+              />
+
+              {/* Right arrow */}
+              <ARUIButton
+                type="right"
+                position={[0.9, 0, -2]}
+                onClick={handleNextModel}
+                scale={0.15}
+              />
+            </>
+          )}
+
         </XR>
       </Canvas>
-
-      {/* AR Controls - Back button (always visible) */}
-      <div className="absolute top-4 left-4 z-50">
-        <button
-          onClick={handleExitAR}
-          className="bg-black/60 backdrop-blur-sm text-white px-4 py-3 rounded-full flex items-center gap-2 hover:bg-black/80 transition-all shadow-lg"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          <span className="text-sm font-medium">Exit AR</span>
-        </button>
-      </div>
-
-      {/* Model slider controls - visible after placement */}
-      {placedMatrix && (
-        <>
-          {/* Bottom indicator */}
-          <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-3 pointer-events-none z-40">
-            <div className="bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-3 shadow-lg">
-              <span className="text-white text-sm font-medium">{currentModel.name}</span>
-              <div className="flex gap-2">
-                {BIKE_MODELS.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === currentModelIndex ? 'bg-white w-6' : 'bg-white/50'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Left/Right navigation buttons */}
-          <div className="absolute top-1/2 left-4 -translate-y-1/2 z-50">
-            <button
-              onClick={handlePrevModel}
-              className="bg-black/60 backdrop-blur-sm text-white p-4 rounded-full hover:bg-black/80 transition-all shadow-lg"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="absolute top-1/2 right-4 -translate-y-1/2 z-50">
-            <button
-              onClick={handleNextModel}
-              className="bg-black/60 backdrop-blur-sm text-white p-4 rounded-full hover:bg-black/80 transition-all shadow-lg"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </>
-      )}
 
     </div>
   )
