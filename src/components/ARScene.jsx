@@ -65,8 +65,25 @@ export default function ARScene() {
     setCurrentModelIndex((prev) => (prev - 1 + BIKE_MODELS.length) % BIKE_MODELS.length)
   }
 
-  const handleExitAR = () => {
+  const handleCloseApp = () => {
+    // Exit AR mode first
     xrStore.exitAR()
+
+    // Close the application/browser tab
+    // Try multiple methods for cross-browser compatibility
+    try {
+      // Method 1: Try to close window (works if opened by script)
+      window.close()
+
+      // Method 2: If that doesn't work, try navigating away
+      setTimeout(() => {
+        // Navigate to about:blank as fallback
+        window.location.href = 'about:blank'
+      }, 100)
+    } catch (e) {
+      console.log('Unable to close window programmatically')
+      // Last resort: just exit AR and let user close manually
+    }
   }
 
   const currentModel = BIKE_MODELS[currentModelIndex]
@@ -116,12 +133,12 @@ export default function ARScene() {
 
           {/* 3D UI Buttons - visible in AR immersive mode */}
 
-          {/* Back button - top left of view */}
+          {/* Close button - top right of view */}
           <ARUIButton
-            type="back"
-            position={[-0.8, 0.9, -2]}
-            onClick={handleExitAR}
-            scale={0.18}
+            type="close"
+            position={[0.85, 0.95, -2]}
+            onClick={handleCloseApp}
+            scale={0.22}
           />
 
           {/* Model navigation buttons - visible after placement */}
@@ -130,17 +147,17 @@ export default function ARScene() {
               {/* Left arrow */}
               <ARUIButton
                 type="left"
-                position={[-0.9, 0, -2]}
+                position={[-0.85, 0, -2]}
                 onClick={handlePrevModel}
-                scale={0.15}
+                scale={0.25}
               />
 
               {/* Right arrow */}
               <ARUIButton
                 type="right"
-                position={[0.9, 0, -2]}
+                position={[0.85, 0, -2]}
                 onClick={handleNextModel}
-                scale={0.15}
+                scale={0.25}
               />
             </>
           )}

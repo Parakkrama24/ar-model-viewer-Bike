@@ -36,40 +36,43 @@ function drawButton(ctx, type, isHovered) {
   ctx.lineJoin = 'round'
 
   // Draw icon based on type
-  if (type === 'back') {
-    // Back arrow
+  if (type === 'close') {
+    // X icon (close)
+    const size = 35
+    ctx.lineWidth = 4
     ctx.beginPath()
-    ctx.moveTo(W / 2 + 20, H / 2 - 30)
-    ctx.lineTo(W / 2 - 20, H / 2)
-    ctx.lineTo(W / 2 + 20, H / 2 + 30)
+    ctx.moveTo(W / 2 - size, H / 2 - size)
+    ctx.lineTo(W / 2 + size, H / 2 + size)
     ctx.stroke()
 
     ctx.beginPath()
-    ctx.moveTo(W / 2 - 20, H / 2)
-    ctx.lineTo(W / 2 + 30, H / 2)
+    ctx.moveTo(W / 2 + size, H / 2 - size)
+    ctx.lineTo(W / 2 - size, H / 2 + size)
     ctx.stroke()
   } else if (type === 'left') {
-    // Left chevron
+    // Left chevron - larger and thicker
+    ctx.lineWidth = 5
     ctx.beginPath()
-    ctx.moveTo(W / 2 + 15, H / 2 - 35)
-    ctx.lineTo(W / 2 - 20, H / 2)
-    ctx.lineTo(W / 2 + 15, H / 2 + 35)
+    ctx.moveTo(W / 2 + 20, H / 2 - 40)
+    ctx.lineTo(W / 2 - 25, H / 2)
+    ctx.lineTo(W / 2 + 20, H / 2 + 40)
     ctx.stroke()
   } else if (type === 'right') {
-    // Right chevron
+    // Right chevron - larger and thicker
+    ctx.lineWidth = 5
     ctx.beginPath()
-    ctx.moveTo(W / 2 - 15, H / 2 - 35)
-    ctx.lineTo(W / 2 + 20, H / 2)
-    ctx.lineTo(W / 2 - 15, H / 2 + 35)
+    ctx.moveTo(W / 2 - 20, H / 2 - 40)
+    ctx.lineTo(W / 2 + 25, H / 2)
+    ctx.lineTo(W / 2 - 20, H / 2 + 40)
     ctx.stroke()
   }
 }
 
 export default function ARUIButton({
-  type = 'back',
+  type = 'close',
   position = [0, 0, -1],
   onClick,
-  scale = 0.15
+  scale = 0.2
 }) {
   const meshRef = useRef()
   const canvasRef = useRef()
