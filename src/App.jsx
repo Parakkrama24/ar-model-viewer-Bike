@@ -53,26 +53,26 @@ function App() {
       {/* Normal 3-D viewer overlay — hidden once AR starts */}
       {!isAR && (
         <>
-          <header className="absolute left-0 right-0 top-0 z-10 flex h-16 items-center justify-between border-b border-white/10 bg-black/30 px-6 backdrop-blur-md">
-            <h1 className="text-lg font-semibold">AR Model Viewer</h1>
+          <header className="absolute left-0 right-0 top-0 z-10 flex h-14 sm:h-16 items-center justify-between border-b border-white/10 bg-black/30 px-4 sm:px-6 backdrop-blur-md">
+            <h1 className="text-base sm:text-lg font-semibold">AR Model Viewer</h1>
           </header>
 
           <section className="h-full w-full">
             <ModelViewer />
           </section>
 
-          <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 flex flex-col items-center gap-3">
+          <div className="absolute bottom-6 sm:bottom-8 left-0 right-0 z-10 flex flex-col items-center gap-3 px-4">
 
             <button
               onClick={handleEnterAR}
               disabled={arLoading}
-              className="rounded-xl bg-blue-600 px-8 py-3 font-semibold text-white shadow-xl transition hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-xs rounded-xl bg-blue-600 px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white shadow-xl transition hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               {arLoading ? 'Starting AR…' : 'View in AR'}
             </button>
 
             {arError && (
-              <p className="max-w-xs rounded-lg bg-red-600/80 px-4 py-2 text-center text-sm text-white backdrop-blur">
+              <p className="max-w-xs rounded-lg bg-red-600/80 px-4 py-2 text-center text-xs sm:text-sm text-white backdrop-blur">
                 {arError}
               </p>
             )}

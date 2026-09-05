@@ -48,10 +48,6 @@ export default function ARScene() {
   const [placedMatrix, setPlacedMatrix] = useState(null)
   const [currentModelIndex, setCurrentModelIndex] = useState(DEFAULT_MODEL_INDEX)
 
-  // Touch tracking for swipe detection
-  const touchStartRef = useRef(null)
-  const touchEndRef = useRef(null)
-
   const handleHit = (matrix) => {
     hitMatrixRef.current = matrix
   }
@@ -60,47 +56,22 @@ export default function ARScene() {
     setPlacedMatrix(matrix)
   }
 
-  // Swipe detection handlers
-  const handleTouchStart = (e) => {
-    if (!placedMatrix) return // Only allow swipe after model is placed
-    touchStartRef.current = e.touches[0].clientX
+  const handleNextModel = () => {
+    setCurrentModelIndex((prev) => (prev + 1) % BIKE_MODELS.length)
   }
 
-  const handleTouchMove = (e) => {
-    if (!placedMatrix) return
-    touchEndRef.current = e.touches[0].clientX
+  const handlePrevModel = () => {
+    setCurrentModelIndex((prev) => (prev - 1 + BIKE_MODELS.length) % BIKE_MODELS.length)
   }
 
-  const handleTouchEnd = () => {
-    if (!placedMatrix || !touchStartRef.current || !touchEndRef.current) return
-
-    const distance = touchStartRef.current - touchEndRef.current
-    const threshold = 50 // Minimum swipe distance in pixels
-
-    if (Math.abs(distance) > threshold) {
-      if (distance > 0) {
-        // Swipe left - next model
-        setCurrentModelIndex((prev) => (prev + 1) % BIKE_MODELS.length)
-      } else {
-        // Swipe right - previous model
-        setCurrentModelIndex((prev) => (prev - 1 + BIKE_MODELS.length) % BIKE_MODELS.length)
-      }
-    }
-
-    // Reset
-    touchStartRef.current = null
-    touchEndRef.current = null
+  const handleExitAR = () => {
+    xrStore.exitAR()
   }
 
   const currentModel = BIKE_MODELS[currentModelIndex]
 
   return (
-    <div
-      className="relative h-full w-full"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className="relative h-full w-full">
 
       <Canvas xr={xrStore}>
         <XR store={xrStore}>
@@ -145,23 +116,62 @@ export default function ARScene() {
         </XR>
       </Canvas>
 
-      {/* Model slider indicator */}
+      {/* AR Controls - Back button (always visible) */}
+      <div className="absolute top-4 left-4 z-50">
+        <button
+          onClick={handleExitAR}
+          className="bg-black/60 backdrop-blur-sm text-white px-4 py-3 rounded-full flex items-center gap-2 hover:bg-black/80 transition-all shadow-lg"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span className="text-sm font-medium">Exit AR</span>
+        </button>
+      </div>
+
+      {/* Model slider controls - visible after placement */}
       {placedMatrix && (
-        <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-3 pointer-events-none">
-          <div className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-3">
-            <span className="text-white text-sm font-medium">{currentModel.name}</span>
-            <div className="flex gap-2">
-              {BIKE_MODELS.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentModelIndex ? 'bg-white w-6' : 'bg-white/50'
-                  }`}
-                />
-              ))}
+        <>
+          {/* Bottom indicator */}
+          <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-3 pointer-events-none z-40">
+            <div className="bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-3 shadow-lg">
+              <span className="text-white text-sm font-medium">{currentModel.name}</span>
+              <div className="flex gap-2">
+                {BIKE_MODELS.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === currentModelIndex ? 'bg-white w-6' : 'bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* Left/Right navigation buttons */}
+          <div className="absolute top-1/2 left-4 -translate-y-1/2 z-50">
+            <button
+              onClick={handlePrevModel}
+              className="bg-black/60 backdrop-blur-sm text-white p-4 rounded-full hover:bg-black/80 transition-all shadow-lg"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="absolute top-1/2 right-4 -translate-y-1/2 z-50">
+            <button
+              onClick={handleNextModel}
+              className="bg-black/60 backdrop-blur-sm text-white p-4 rounded-full hover:bg-black/80 transition-all shadow-lg"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </>
       )}
 
     </div>
