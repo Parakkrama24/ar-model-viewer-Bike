@@ -10,7 +10,6 @@ export default function PartDetailsPopup({ partInfo, onClose }) {
   const [isAnimating, setIsAnimating] = useState(false)
 
   useEffect(() => {
-    console.log('PartDetailsPopup useEffect - partInfo:', partInfo)
     if (partInfo) {
       // Trigger animation after mount
       setTimeout(() => setIsAnimating(true), 10)
@@ -19,14 +18,9 @@ export default function PartDetailsPopup({ partInfo, onClose }) {
     }
   }, [partInfo])
 
-  console.log('PartDetailsPopup render - partInfo:', partInfo)
-
   if (!partInfo) {
-    console.log('PartDetailsPopup - returning null, no partInfo')
     return null
   }
-
-  console.log('PartDetailsPopup - rendering popup!')
 
   const handleClose = () => {
     setIsAnimating(false)

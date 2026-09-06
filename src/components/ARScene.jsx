@@ -10,9 +10,9 @@ import SceneLighting from './SceneLighting'
 import ARHitTest from './ARHitTest'
 import InteractiveBikeModel from './InteractiveBikeModel'
 import ARInfoCard from './ARInfoCard'
+import ARPartDetailsCard from './ARPartDetailsCard'
 import ARUIButton from './ARUIButton'
 import ARNavigationButtons from './ARNavigationButtons'
-import PartDetailsPopup from './PartDetailsPopup'
 import { BIKE_MODELS, DEFAULT_MODEL_INDEX } from '../config/models'
 
 const xrStore = createXRStore()
@@ -96,6 +96,11 @@ export default function ARScene() {
     setShowInfo(false)
   }
 
+  const handleShowOverallDetails = () => {
+    // Show the overall bike details card
+    setShowInfo(true)
+  }
+
   const currentModel = BIKE_MODELS[currentModelIndex]
 
   return (
@@ -159,14 +164,16 @@ export default function ARScene() {
             onNext={handleNextModel}
           />
 
+          {/* 3D Part Details Card - shows when a specific part is clicked */}
+          <ARPartDetailsCard
+            partInfo={selectedPart}
+            placedMatrix={placedMatrix}
+            onClose={() => setSelectedPart(null)}
+            onShowOverallDetails={handleShowOverallDetails}
+          />
+
         </XR>
       </Canvas>
-
-      {/* 2D Part Details Popup - rendered outside Canvas, works in AR */}
-      <PartDetailsPopup
-        partInfo={selectedPart}
-        onClose={() => setSelectedPart(null)}
-      />
 
     </div>
   )
