@@ -24,16 +24,33 @@ export default function InteractiveBikeModel({
   const handleClick = useCallback((event) => {
     console.log('Click detected on:', event.object?.name || 'unknown object')
 
-    // Check if a specific part was clicked
-    if (event.object && event.object.uuid) {
-      const partInfo = clickablePartsRef.current.get(event.object.uuid)
+    // Build part info on-the-fly from the clicked mesh
+    if (event.object && event.object.isMesh) {
+      const partName = event.object.name.toLowerCase()
 
-      if (partInfo) {
-        console.log('Part clicked:', partInfo)
-        event.stopPropagation() // Stop propagation only when we handle it
-        onPartClick?.(partInfo)
-        return
+      // Detect tire/wheel parts
+      const isTire =
+        partName.includes('tire') ||
+        partName.includes('wheel') ||
+        partName.includes('tyre') ||
+        partName.includes('rim')
+
+      // Detect other parts
+      const isFrame = partName.includes('frame')
+      const isEngine = partName.includes('engine') || partName.includes('motor')
+      const isSeat = partName.includes('seat')
+      const isHandlebar = partName.includes('handlebar') || partName.includes('handle')
+
+      const partInfo = {
+        name: event.object.name,
+        type: isTire ? 'tire' : isFrame ? 'frame' : isEngine ? 'engine' : isSeat ? 'seat' : isHandlebar ? 'handlebar' : 'unknown',
+        mesh: event.object
       }
+
+      console.log('Part clicked:', partInfo)
+      event.stopPropagation()
+      onPartClick?.(partInfo)
+      return
     }
 
     // Otherwise, treat as general model click
