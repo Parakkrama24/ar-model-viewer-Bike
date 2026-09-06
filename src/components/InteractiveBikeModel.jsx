@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -19,6 +19,27 @@ export default function InteractiveBikeModel({
   const modelRef = useRef()
   const { scene } = useGLTF(modelPath)
   const clickablePartsRef = useRef(new Map())
+
+  // Define click handler before the effect
+  const handleClick = useCallback((event) => {
+    console.log('Click detected on:', event.object?.name || 'unknown object')
+
+    // Check if a specific part was clicked
+    if (event.object && event.object.uuid) {
+      const partInfo = clickablePartsRef.current.get(event.object.uuid)
+
+      if (partInfo) {
+        console.log('Part clicked:', partInfo)
+        event.stopPropagation() // Stop propagation only when we handle it
+        onPartClick?.(partInfo)
+        return
+      }
+    }
+
+    // Otherwise, treat as general model click
+    event.stopPropagation()
+    onModelClick?.()
+  }, [onPartClick, onModelClick])
 
   // Ground the model and setup clickable parts
   useEffect(() => {
@@ -54,20 +75,19 @@ export default function InteractiveBikeModel({
         const isSeat = partName.includes('seat')
         const isHandlebar = partName.includes('handlebar') || partName.includes('handle')
 
-        if (isTire || isFrame || isEngine || isSeat || isHandlebar) {
-          clickablePartsRef.current.set(child.uuid, {
-            name: child.name,
-            type: isTire ? 'tire' : isFrame ? 'frame' : isEngine ? 'engine' : isSeat ? 'seat' : 'handlebar',
-            mesh: child
-          })
+        // Make ALL meshes clickable (for models with generic names like Object_300)
+        clickablePartsRef.current.set(child.uuid, {
+          name: child.name,
+          type: isTire ? 'tire' : isFrame ? 'frame' : isEngine ? 'engine' : isSeat ? 'seat' : isHandlebar ? 'handlebar' : 'unknown',
+          mesh: child
+        })
 
-          // Make cursor pointer on hover (if not in XR)
-          child.userData.interactive = true
-        }
+        // Make cursor pointer on hover (if not in XR)
+        child.userData.interactive = true
       }
     })
 
-    console.log('Clickable parts found:', Array.from(clickablePartsRef.current.values()))
+    console.log('Clickable parts found:', clickablePartsRef.current.size, 'meshes')
 
   }, [scene, modelPath])
 
@@ -87,24 +107,6 @@ export default function InteractiveBikeModel({
 
   }, [matrix])
 
-  const handleClick = (event) => {
-    event.stopPropagation()
-
-    // Check if a specific part was clicked
-    if (event.object && event.object.uuid) {
-      const partInfo = clickablePartsRef.current.get(event.object.uuid)
-
-      if (partInfo) {
-        console.log('Part clicked:', partInfo)
-        onPartClick?.(partInfo)
-        return
-      }
-    }
-
-    // Otherwise, treat as general model click
-    onModelClick?.()
-  }
-
   if (!matrix) {
     return null
   }
@@ -116,7 +118,7 @@ export default function InteractiveBikeModel({
         rotation={MODEL_ROTATION}
       >
         <primitive
-          object={scene.clone()}
+          object={scene}
           onClick={handleClick}
         />
       </group>
