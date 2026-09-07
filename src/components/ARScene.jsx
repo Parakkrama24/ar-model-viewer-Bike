@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import {
   XR,
   createXRStore,
@@ -13,7 +13,9 @@ import ARInfoCard from './ARInfoCard'
 import ARPartDetailsCard from './ARPartDetailsCard'
 import ARUIButton from './ARUIButton'
 import ARNavigationButtons from './ARNavigationButtons'
+import ARCameraButton from './ARCameraButton'
 import { BIKE_MODELS, DEFAULT_MODEL_INDEX } from '../config/models'
+import { captureARPhoto, createFlashEffect, playShutterSound } from '../utils/photoCaptureService'
 
 const xrStore = createXRStore()
 
@@ -42,6 +44,39 @@ function ARPlacement({
   )
 
   return null
+}
+
+// Component to handle photo capture with access to Three.js renderer
+function CameraButtonWithCapture({ placedMatrix, position }) {
+  const { gl } = useThree()
+
+  const handleCapture = async () => {
+    try {
+      // Create visual flash effect
+      createFlashEffect()
+
+      // Play shutter sound
+      playShutterSound()
+
+      // Capture the photo
+      await captureARPhoto(gl, 'ar-bike-photo')
+
+      console.log('Photo captured successfully!')
+    } catch (error) {
+      console.error('Failed to capture photo:', error)
+    }
+  }
+
+  // Only show camera button when model is placed
+  if (!placedMatrix) return null
+
+  return (
+    <ARCameraButton
+      position={position}
+      scale={0.3}
+      onClick={handleCapture}
+    />
+  )
 }
 
 export default function ARScene() {
@@ -106,7 +141,10 @@ export default function ARScene() {
   return (
     <div className="relative h-full w-full">
 
-      <Canvas xr={xrStore}>
+      <Canvas
+        xr={xrStore}
+        gl={{ preserveDrawingBuffer: true }}
+      >
         <XR store={xrStore}>
 
           {/* AR lighting */}
@@ -155,6 +193,12 @@ export default function ARScene() {
             position={[0.85, 0.95, -2]}
             onClick={handleCloseApp}
             scale={0.22}
+          />
+
+          {/* Camera button for photo capture - fixed in camera space, bottom center */}
+          <CameraButtonWithCapture
+            placedMatrix={placedMatrix}
+            position={[0, -0.75, -2]}
           />
 
           {/* Model navigation buttons - anchored to model in world space */}
